@@ -1,6 +1,8 @@
 package com.example.ecsite20220314.service;
 
-import com.example.ecsite20220314.domain.Order;
+import java.util.List;
+
+import com.example.ecsite20220314.domain.OrderItem;
 import com.example.ecsite20220314.repository.orderRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,7 @@ public class shoppingCartService {
     @Autowired
     private orderRepository orderRepository;
 
-    public  Order   cartInfo(int id){
+    public  List<OrderItem>   cartInfo(int id){
         return  orderRepository.cartInfo(id);
     }
 }
