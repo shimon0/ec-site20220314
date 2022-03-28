@@ -4,7 +4,6 @@ import javax.servlet.http.HttpSession;
 
 import com.example.ecsite20220314.domain.User;
 import com.example.ecsite20220314.form.LoginForm;
-import com.example.ecsite20220314.form.UserForm;
 import com.example.ecsite20220314.service.loginService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,20 +41,32 @@ public class loginController {
     public  String  login(@Validated LoginForm  loginForm,BindingResult result,RedirectAttributes redirectAttributes,Model model){
         
         Integer userId = (Integer) session.getAttribute("userId");
+        //ログイン状態のチェック
 		if(userId!=null){
             return  "redirect:/shoppingList";
 		}
-
+        //入力エラーチェック
         if(result.hasErrors()){
             return  index();
         }
-
+        //アカウント情報の検索
         User user=service.login(loginForm);
 
+        //パスワード確認
+        //パスワード失敗if文
         if(!(user.getPassword().equals(loginForm.getPassword()))){
             model.addAttribute("passMiss","パスワードが正しくありません");
             return  "foward:/login";
         }else{
+            //パスワード確認後、セッションをセット
+            session.setAttribute("userId", user.getId());
+            session.setAttribute("userName",user.getName());
+            //ゲストカート情報をログインカートに更新
+            if(session.getAttribute("preId")!=null){
+                service.updateGeustCart(user.getId(),(Integer)session.getAttribute("preId"));
+            //セッションスコープからゲストidの破棄
+                session.removeAttribute("preId");
+            }
             return  "redirect:/itemList";
         }
 

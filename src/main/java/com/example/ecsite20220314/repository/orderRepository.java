@@ -86,6 +86,7 @@ public class orderRepository {
     };
 
 
+
     /**
      * orderテーブル確認sql
      * Idなければインサート
@@ -133,6 +134,18 @@ public class orderRepository {
         List<OrderItem>   order=template.query(sql, param2, O_RESULT_SET_EXTRACTOR);
         return  order;
 
+    }
+
+    /**
+     * ショッピングカートの内容更新
+     * ゲスト→ログイン状態
+     * @param userId
+     * @param preId
+     */
+    public void updateGeustCart(int userId,int preId){
+        String sql="UPDATE orders SET user_id=:userId WHERE user_id=:preId";
+        SqlParameterSource idUpdateSql=new MapSqlParameterSource().addValue("userId", userId).addValue("preId",preId);
+        template.update(sql,idUpdateSql);     
     }
 }
 
