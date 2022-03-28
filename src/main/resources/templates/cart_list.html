@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ピザ屋のネット注文</title>
-    <link href="../static/css/bootstrap.css" rel="stylesheet" />
-    <link href="../static/css/piza.css" rel="stylesheet" />
+    <title>らくらくコーヒーショップ商品一覧</title>
+    <link href="../static/css/bootstrap.css" th:href="@{/css/bootstrap.css}" rel="stylesheet" />
+    <link href="../static/css/piza.css" th:href="@{/css/piza.css}" rel="stylesheet" />
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -29,11 +29,12 @@
               <span class="icon-bar"></span> <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="item_list_pizza.html">
+            <a class="navbar-brand" th:href="@{/itemList}">
               <!-- 企業ロゴ -->
               <img
                 alt="main log"
-                src="../static/../static/img_pizza/header_logo.png"
+                src="../static/img_coffee/header_logo.png"
+                th:src="@{/img_coffee/header_logo.png}"
                 height="35"
               />
             </a>
@@ -44,13 +45,21 @@
             class="collapse navbar-collapse"
             id="bs-example-navbar-collapse-1"
           >
+          <input type ="hidden" id="js_userId" th:value="${session.userId}" />
             <p class="navbar-text navbar-right">
-              <a href="cart_list.html" class="navbar-link">ショッピングカート</a
+              <th:block th:unless="${session.userId} == null">
+             	<span th:text="${session.userName + 'さん こんにちは！'}" style="font-weight:900;">山田さん</span>&nbsp;&nbsp;
+              </th:block>
+              <a href="cart_list.html" th:href="@{/userPage}" class="navbar-link" onclick="alertFunction()">マイページ</a
               >&nbsp;&nbsp;
-              <a href="order_history.html" class="navbar-link">注文履歴</a
+              <a href="cart_list.html" th:href="@{/shoppingCart}" class="navbar-link">ショッピングカート</a
               >&nbsp;&nbsp;
-              <a href="login.html" class="navbar-link">ログイン</a>&nbsp;&nbsp;
-              <a href="item_list_pizza.html" class="navbar-link">ログアウト</a>
+              <a href="order_history.html" th:href="@{/orderHistory}" class="navbar-link" onclick="alertFunction()">注文履歴</a
+              >&nbsp;&nbsp;
+              <th:block th:switch="true">
+				<a th:case="${session.userId} == null" th:href="@{/login}" class="navbar-link">ログイン</a>
+				<a th:case="${session.preId} == null" th:href="@{/logout}" class="navbar-link">ログアウト</a>
+			  </th:block>
             </p>
           </div>
           <!-- /.navbar-collapse -->
@@ -89,99 +98,42 @@
                 </th>
                 <th></th>
               </tr>
-              <tr>
+              <tr th:each="orderItem:${orderItems}">
                 <td>
                   <div class="center">
                     <img
                       src="../static/img_pizza/1.jpg"
+                      th:src="@{/img_coffee/}+${orderItem.item.imagePath}"
                       class="img-responsive img-rounded item-img-center"
                       width="100"
                       height="300"
                     /><br />
-                    じゃがバターベーコン
+                    <span th:text="${orderItem.item.name}">じゃがバターベーコン</span>
                   </div>
                 </td>
                 <td>
-                  <span class="price">&nbsp;Ｌ</span>&nbsp;&nbsp;2,380円
-                  &nbsp;&nbsp;1個
+                  <span class="price" th:text="'&nbsp;'+${orderItem.size}">&nbsp;Ｌ</span>
+                  <span th:text="'&nbsp;&nbsp;'+${orderItem.item.priceM}"></span>
+                  <span th:text="'&nbsp;&nbsp;'+${orderItem.item.priceL}"></span>
+                  <span th:text="'&nbsp;&nbsp;'+${orderItem.quantity}+'個'">&nbsp;&nbsp;1個</span>
                 </td>
                 <td>
-                  <ul>
-                    <li>ピーマン300円</li>
-                    <li>オニオン300円</li>
-                    <li>あらびきソーセージ300円</li>
+                  <ul th:each="toppings:${orderItem.orderToppingList}">
+                    <li th:text="${toppings.topping.name}">ピーマン300円
+                      <span th:text="${toppings.topping.priceM}+'円'"></span>
+                      <span th:text="${toppings.topping.priceL}+'円'"></span>
+                    </li>
                   </ul>
                 </td>
                 <td>
-                  <div class="text-center">3,280円</div>
+                  <div class="text-center" th:text="${totalMap}">3,280円</div>
                 </td>
                 <td>
                   <div class="text-center">
-                    <button type="submit" class="btn btn-primary">削除</button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="center">
-                    <img
-                      src="../static/img_pizza/1.jpg"
-                      class="img-responsive img-rounded item-img-center"
-                      width="100"
-                      height="300"
-                    /><br />
-                    じゃがバターベーコン
-                  </div>
-                </td>
-                <td>
-                  <span class="price">&nbsp;Ｌ</span>&nbsp;&nbsp;2,380円
-                  &nbsp;&nbsp;1個
-                </td>
-                <td>
-                  <ul>
-                    <li>ピーマン300円</li>
-                    <li>オニオン300円</li>
-                    <li>あらびきソーセージ300円</li>
-                  </ul>
-                </td>
-                <td>
-                  <div class="text-center">3,280円</div>
-                </td>
-                <td>
-                  <div class="text-center">
-                    <button type="submit" class="btn btn-primary">削除</button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="center">
-                    <img
-                      src="../static/img_pizza/1.jpg"
-                      class="img-responsive img-rounded item-img-center"
-                      width="100"
-                      height="300"
-                    /><br />
-                    じゃがバターベーコン
-                  </div>
-                </td>
-                <td>
-                  <span class="price">&nbsp;Ｌ</span>&nbsp;&nbsp;2,380円
-                  &nbsp;&nbsp;1個
-                </td>
-                <td>
-                  <ul>
-                    <li>ピーマン300円</li>
-                    <li>オニオン300円</li>
-                    <li>あらびきソーセージ300円</li>
-                  </ul>
-                </td>
-                <td>
-                  <div class="text-center">3,280円</div>
-                </td>
-                <td>
-                  <div class="text-center">
-                    <button type="submit" class="btn btn-primary">削除</button>
+                    <form th:action="@{/shppingCart/deleteId}">
+                      <input type="hidden" name="deleteId" th:value="${orderItem.id}">
+                      <button type="submit" class="btn btn-primary">削除</button>
+                    </form>
                   </div>
                 </td>
               </tr>

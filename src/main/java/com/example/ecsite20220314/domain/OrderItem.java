@@ -10,6 +10,14 @@ public class OrderItem {
     private Character   size;
     private Item    item;
     private List<OrderTopping>  orderToppingList;
+    public int getSubTotal(){
+        int subTotal=0;
+        if(size.equals('M')) {
+			subTotal=(item.getPriceM()+orderToppingList.size()*200)*quantity;
+		}else if(size.equals('L')){
+			subTotal=(item.getPriceL()+orderToppingList.size()*300)*quantity;
+		}        return subTotal;
+    }
 
     public List<OrderTopping> getOrderToppingList() {
         return orderToppingList;
