@@ -2,6 +2,7 @@ package com.example.ecsite20220314.repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.example.ecsite20220314.domain.Item;
 import com.example.ecsite20220314.domain.Order;
@@ -28,7 +29,7 @@ public class orderRepository {
      */
     private static  final   RowMapper<Order>    ORDER_ROW_MAPPER=(rs,i)->{
         Order   order=new Order();
-        order.setUserId(rs.getInt("user_id"));
+        order.setId(rs.getInt("id"));
         return  order;
     };
 
@@ -43,22 +44,22 @@ public class orderRepository {
         int beforeIdNum=0;
 
         while (rs.next()) {
-            int nowIdNum=rs.getInt("ord_item.id");
+            int nowIdNum=rs.getInt("ord_id");
         
             if (nowIdNum !=beforeIdNum) {
                 OrderItem   orderItem=new OrderItem();
 
-                orderItem.setOrderId(rs.getInt("ord_item.id"));
-                orderItem.setItemId(rs.getInt("item.id"));
-                orderItem.setQuantity(rs.getInt("ord_item.quantity"));
-                char[] size=rs.getString("ord_item.size").toCharArray();
+                orderItem.setOrderId(rs.getInt("ord_id"));
+                orderItem.setItemId(rs.getInt("item_id"));
+                orderItem.setQuantity(rs.getInt("quantity"));
+                char[] size=rs.getString("size").toCharArray();
                 orderItem.setSize(size[0]);
 
                 Item item=new Item();
-                item.setName(rs.getString("item.name"));
-                item.setImagePath(rs.getString("item.image_path"));
-                item.setPriceM(rs.getInt("item.price_m"));
-                item.setPriceL(rs.getInt("item.price_l"));
+                item.setName(rs.getString("item_name"));
+                item.setImagePath(rs.getString("image_path"));
+                item.setPriceM(rs.getInt("price_m"));
+                item.setPriceL(rs.getInt("price_l"));
                 
                 orderItem.setItem(item);
 
@@ -67,15 +68,15 @@ public class orderRepository {
                 orderItems.add(orderItem);
                 
             }
-            if (rs.getInt("topping.id")!=0) {
+            if (rs.getInt("topping_id")!=0) {
                 OrderTopping    orderTopping=new OrderTopping();
                 Topping topping=new Topping();
-                topping.setId(rs.getInt("topping.id"));
-                topping.setName(rs.getString("topping.name"));
-                topping.setPriceM(rs.getInt("topping.price_m"));
-                topping.setPriceL(rs.getInt("topping.price_l"));
+                topping.setId(rs.getInt("topping_id"));
+                topping.setName(rs.getString("topping_name"));
+                topping.setPriceM(rs.getInt("topping_price_m"));
+                topping.setPriceL(rs.getInt("topping_price_l"));
                 orderTopping.setTopping(topping);
-                orderTopping.setOrderItemId(rs.getInt("ord_topping.order_item_id"));
+                orderTopping.setOrderItemId(rs.getInt("order_item_id"));
                 orderToppingList.add(orderTopping);
  
             }
@@ -93,12 +94,15 @@ public class orderRepository {
      * @param userId
      * @return
      */
-    public  int searchId(int id){
-        String  sql="SELECT id FROM orders WHERE user_id=:userId    AND status=0";
-        SqlParameterSource  param=new   MapSqlParameterSource().addValue("userId", id);
-        Order order=template.queryForObject(sql, param, ORDER_ROW_MAPPER);
-        if(order.getId()==null){
-            order=insertOrder(id);
+    public  int searchId(int nowId){
+        String  sql="SELECT id FROM orders WHERE user_id=:userId AND status=0";
+        SqlParameterSource  param=new MapSqlParameterSource().addValue("userId", nowId);
+        Order order=new Order();
+        List<Order> orderList=template.query(sql, param,ORDER_ROW_MAPPER);
+        if (orderList.size()!=0) {
+            order.setId(orderList.get(0).getId());
+        }else{
+            order=insertOrder(nowId); 
         }
         return  order.getId();
     }
@@ -111,7 +115,7 @@ public class orderRepository {
      */
     public  Order insertOrder(int id){
         String  insertSql="INSERT INTO orders(user_id,status,total_price) VALUES(:userId,0,0) RETURNING id;";
-            SqlParameterSource param2=new   MapSqlParameterSource().addValue("userId", id);
+            SqlParameterSource param2=new   MapSqlParameterSource().addValue("userId",id);
             Order order=template.queryForObject(insertSql, param2, ORDER_ROW_MAPPER);
             return  order;
     }
@@ -121,12 +125,12 @@ public class orderRepository {
      * @param id
      * @return
      */
-    public  List<OrderItem>   cartInfo(int    id){
+    public  List<OrderItem> cartInfo(int id){
         String  sql=
-        "SELECT ord_item.id,item.id,item.image_path,item.name,ord_item.size,ord_item.quantity,item.price_m,item.price_l,"
-        +" ord_topping.order_item_id,topping.id,topping.name,topping.price_m,topping.price_l FROM orders AS ord "
+        "SELECT ord_item.id ord_id,item.id item_id,item.image_path,item.name item_name,ord_item.size,ord_item.quantity,item.price_m,item.price_l,"
+        +" ord_topping.order_item_id,topping.id topping_id,topping.name topping_name,topping.price_m topping_price_m,topping.price_l topping_price_l FROM orders AS ord "
         +" JOIN order_items AS ord_item ON ord.id=ord_item.order_id "
-        +" LEFT OUTER JOIN items AS item ON ord_item.id=item.id"
+        +" LEFT OUTER JOIN items AS item ON ord_item.item_id=item.id"
         +" LEFT OUTER JOIN order_toppings AS ord_topping ON ord_item.id=ord_topping.order_item_id"
         +" LEFT OUTER JOIN toppings AS topping ON ord_topping.topping_id=topping.id"
         +" WHERE ord.user_id=:userId AND ord.status=0";

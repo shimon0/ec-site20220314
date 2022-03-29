@@ -21,26 +21,29 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/itemDetail")
 public class itemDetailController {
     @Autowired
-    private itemDetailService   service;
+    private itemDetailService service;
 
     @Autowired
     private HttpSession session;
 
     @ModelAttribute
-    public  OrderItemForm   setUpForm(){
+    public  OrderItemForm setUpForm(){
         return  new OrderItemForm();
     }
 
     @RequestMapping("")
-    public String  index(int id,Model  model){
+    public String  index(int id,OrderItemForm form,Model  model){
         Item    itemObject=service.load(id);
         List<Topping> toppings=service.findAll();
+        form.setItemId(id);
+        form.setSize('m');
         model.addAttribute("itemObject", itemObject);
         model.addAttribute("toppings", toppings);
         return  "item_detail";
     }
+
     @RequestMapping("/insert")
-    public  String  insert(OrderItemForm    form){
+    public  String  insert(OrderItemForm form){
         //orderIDを取得・なければテーブル作成
         Integer nowId=(Integer) session.getAttribute("userId");
         if(nowId==null){
@@ -50,38 +53,31 @@ public class itemDetailController {
             nowId=Math.abs(UUID.randomUUID().hashCode());
             session.setAttribute("preId", nowId);
         }
-        //userId or preId格納
+
+        //preIdないしはuserIdを格納
         int orderId=service.searchId(nowId.intValue());
 
+        //userIdないしはpreIdでカートに登録
+            cartAdd(form, orderId);
 
-        if(session.getAttribute("userId")!=null){
-            //両方あればpreIdを切ってもらう
-            if(session.getAttribute("preId") !=null){
-                return  "/login";
-            }
-            //ログイン状態での処理
-            else if(session.getAttribute("preId") ==null){
-                cartAdd(form,  orderId); 
-            }
-        }else{
-            cartAdd(form,  orderId);
-        }
         return  "redirect:/shoppingCart";
     }
 
     //カート追加機能
-    private  String cartAdd(OrderItemForm    form,int orderId){
+    private  void cartAdd(OrderItemForm form,int orderId){
         form.setOrderId(orderId);
+    
         int orderItemId=service.insertAndId(form).intValue();
         //トッピング追加
-        if(form.getOrderToppingList().size()!=0){
-            for (OrderTopping toppings : form.getOrderToppingList()) {
-                toppings.setOrderItemId(orderItemId);
-                service.insertTopping(toppings);
+        if(form.getOrderToppingList()!=null){
+            for (String toppings : form.getOrderToppingList()) {
+                Integer toppingId = Integer.parseInt(toppings);
+                OrderTopping orderTopping = new OrderTopping();
+                orderTopping.setOrderItemId(orderItemId);
+                orderTopping.setToppingId(toppingId);
+                service.insertTopping(orderTopping);
             }
         }
-        return  "redirect:/shoppingCart";
-
     }
     
 }

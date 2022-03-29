@@ -67,7 +67,7 @@
         <!-- /.container-fluid -->
       </nav>
 
-      <form action="cart_list.html" th:action="@{/insert}" th:object="${OrderItemForm}">
+      <form action="cart_list.html" th:action="@{/itemDetail/insert}" th:object="${orderItemForm}">
         <div class="row">
           <div class="col-xs-offset-2 col-xs-8">
             <h3 class="text-center">商品詳細</h3>
@@ -80,6 +80,7 @@
                 />
               </div>
 
+              <input type="hidden" name="itemId" th:value="${itemObject.id}">
               <div class="col-xs-5">
                 <div class="bs-component">
                   <h4 th:text="${itemObject.name}">じゃがバターベーコン</h4>
@@ -104,8 +105,8 @@
                         <input
                           type="radio"
                           name="responsibleCompany"
-                          checked="checked"
-                          th:value="m"
+                          value="m"
+                          th:field="*{size}"
                         />
                         <span class="price">&nbsp;&nbsp;М&nbsp;&nbsp;</span><span th:text="'&nbsp;&nbsp;'+${itemObject.priceM}+' 円'">&nbsp;&nbsp;1,380円(税抜)</span
                         >
@@ -114,7 +115,9 @@
                         <input 
                           type="radio"
                           name="responsibleCompany"
-                          th:value="l" />
+                          value="l"
+                          th:field="*{size}"
+                                                    />
                          <span class="price" >&nbsp;&nbsp;L&nbsp;&nbsp;</span><span th:text="'&nbsp;&nbsp;'+${itemObject.priceL}+' 円'">&nbsp;&nbsp;2,380円(税抜)</span
                         >
                       </label>
@@ -137,7 +140,7 @@
                     </div>
                     <div class="col-sm-12" >
                       <label class="checkbox-inline" th:each="topping:${toppings}">
-                        <input type="checkbox" value="" th:value="${topping.id}"><span th:text="${topping.name}">オニオン</span>
+                        <input type="checkbox" name="orderToppingList" th:value="${topping.id}"><span th:text="${topping.name}">オニオン</span>
                       </label>
                     </div>
                   </div>
@@ -150,7 +153,7 @@
                   <div class="row">
                     <div class="col-xs-5 col-sm-5">
                       <label for="">数量:</label>
-                      <select name="area" class="form-control">
+                      <select name="area" class="form-control"th:field="*{quantity}">
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>

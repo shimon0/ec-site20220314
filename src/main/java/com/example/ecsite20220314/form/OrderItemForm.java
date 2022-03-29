@@ -3,21 +3,21 @@ package com.example.ecsite20220314.form;
 import java.util.List;
 
 import com.example.ecsite20220314.domain.Item;
-import com.example.ecsite20220314.domain.OrderTopping;
 
 public class OrderItemForm {
     private Integer id;
     private Integer itemId;
     private Integer orderId;
     private Integer quantity;
-    private Character   size;
+    private Character size;
     private Item    item;
-    private List<OrderTopping>  orderToppingList;
+    private List<String>  orderToppingList;
 
-    public List<OrderTopping> getOrderToppingList() {
+
+    public List<String> getOrderToppingList() {
         return orderToppingList;
     }
-    public void setOrderToppingList(List<OrderTopping> orderToppingList) {
+    public void setOrderToppingList(List<String> orderToppingList) {
         this.orderToppingList = orderToppingList;
     }
     public Integer getId() {

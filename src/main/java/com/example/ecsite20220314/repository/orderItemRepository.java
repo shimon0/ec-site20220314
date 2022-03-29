@@ -33,8 +33,8 @@ public class orderItemRepository {
         return orderItem;
     };
 
-    public  Integer  insertAndId(OrderItemForm    form){
-        String  sql="INSERT INTO order_items(item_id,order_id,quantity,size VALUES(:itemId,:orderId,:quantity,:size) RETURNING id;";
+    public  Integer  insertAndId(OrderItemForm form){
+        String  sql="INSERT INTO order_items(item_id,order_id,quantity,size) VALUES(:itemId,:orderId,:quantity,:size) RETURNING id;";
         SqlParameterSource  param=new   MapSqlParameterSource().addValue("itemId", form.getItemId())
                                         .addValue("orderId", form.getOrderId()).addValue("quantity", form.getQuantity()).addValue("size", form.getSize());
         OrderItem   oItemId=template.queryForObject(sql, param, O_ROW_MAPPER);

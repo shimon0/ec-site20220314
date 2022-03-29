@@ -79,7 +79,7 @@ public class itemRepository {
 
      public Item load(int id){
          String sql="SELECT id,name,image_path,price_m,price_l,description FROM items WHERE id=:id";
-         SqlParameterSource param=new   MapSqlParameterSource().addValue("id", id);
+         SqlParameterSource param=new MapSqlParameterSource().addValue("id", id);
          Item items=template.queryForObject(sql, param, ITEM_ROW_MAPPER);
          return items;
     }    

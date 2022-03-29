@@ -14,7 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/shppingCart")
+@RequestMapping("/shoppingCart")
 public class shoppingCartController {
 
     @Autowired
@@ -25,17 +25,31 @@ public class shoppingCartController {
     
     @RequestMapping("")
     public String index(Model  model){
-        if (session.getAttribute("userId")==null) {
-            return  "/login";
-        }
-        List<OrderItem> orderItems=service.cartInfo((int)session.getAttribute("userId"));
-        model.addAttribute("orderItems", orderItems);
         HashMap<Integer,Integer>totalMap = new HashMap<>();
 
-        for(OrderItem order:orderItems){
+        //ログイン状態での表示処理
+        if (session.getAttribute("userId")!=null) {
+            List<OrderItem> orderItems=service.cartInfo((Integer)session.getAttribute("userId"));
+            model.addAttribute("orderItems", orderItems);
+
+            for(OrderItem order:orderItems){
             totalMap.put(order.getId(),order.getSubTotal());
+            }
+        //ゲスト状態での表示処理            
+        }else if(session.getAttribute("preId")!=null){
+            List<OrderItem> orderItems=service.cartInfo((Integer)session.getAttribute("preId"));
+            model.addAttribute("orderItems", orderItems);
+
+            for(OrderItem order:orderItems){
+            totalMap.put(order.getId(),order.getSubTotal());
+            }
+        //例外
+        }else{
+            return  "redirect:/login";
         }
         model.addAttribute("totalMap", totalMap);
+
+        
         return "cart_list";
     }
 }
